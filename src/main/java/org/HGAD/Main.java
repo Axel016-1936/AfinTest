@@ -15,8 +15,10 @@ public class Main
     // Escaner global
     static boolean EsAdmin = false;
     // Variable a usar en el futuro
+    static boolean MaxAdmin = false;
     static String[][] datosdisco = new String[1000][9];
     static int contadorDiscos = 0;
+    static String Nombre = " ";
 
     static boolean InicioSesion = false;
 
@@ -24,50 +26,81 @@ public class Main
     // MENU PRINCIPAL
     public static void main(String[] args) {
         int opcion = 0;
-
+        boolean Operacion = false;
         do {
-
+            Operacion = false;
             System.out.println("===========================");
             System.out.println("      DISCOS SALVAJES");
             System.out.println("===========================");
             System.out.println("0. Salir");
             System.out.println("1. Registrarse");
             System.out.println("2. Iniciar Sesión");
-            System.out.println("//Para ingresar al modulo de registro de datos del disco, registrese primero como ");
-            System.out.println("administrador, inicie sesión y posteriormente ingrese el número 3 ");
-            System.out.println("4.-Consulta de discos (Opción temporal)");
-            System.out.print("Seleccione una opción: ");
-
+            if(InicioSesion == true) {
+                System.out.println("3. Cerrar Session.");
+                System.out.println("4.-Consulta de discos ");
+                if(EsAdmin == true) {
+                    System.out.println("5. Registro de discos");
+                }
+            }
+            System.out.println("Seleccione una opción: ");
             if (scanner.hasNextInt()) {
                 opcion = scanner.nextInt();
                 scanner.nextLine();
             } else {
                 scanner.next();
-                System.out.println("Opción inválida. Ingrese un número.");
+                System.out.println("Opcion no valida, ingrese un numero entero.");
+                opcion = -1;
+                System.out.println(" ");
+                System.out.println(" ");
+                System.out.println(" ");
                 continue;
             }
-
-
             switch (opcion) {
                 case 1:
                     registrarUsuario();
+                    Operacion = true;
                     break;
                 case 2:
                     iniciarSesion();
+                    Operacion = true;
                     break;
                 case 0:
                     System.out.println("Fin del programa");
+                    Operacion = true;
                     break;
-                case 3:
-                    System.out.println("no se");
-                    registrodiscos();
+                case -1:
                     break;
-                case 4:
-                    ordenamiento();
-                    break;
-                default:
-                    System.out.println("Opción no válida. Intente de nuevo.");
             }
+            if(InicioSesion == true){
+                switch(opcion) {
+                    case 3:
+                        CierreSession();
+                        Operacion = true;
+                        break;
+                    case 4:
+                        ordenamiento();
+                        Operacion = true;
+                        break;
+                }
+                if(EsAdmin == true) {
+                    switch (opcion) {
+                        case 5:
+                            registrodiscos();
+                            Operacion = true;
+                            break;
+                    }
+                }
+            }
+            if(Operacion == false) {
+                switch (opcion) {
+                    default:
+                        System.out.println("Opción no válida. Intente de nuevo.");
+                        break;
+                }
+            }
+            System.out.println(" ");
+            System.out.println(" ");
+            System.out.println(" ");
         } while (opcion != 0);
     }
 
@@ -92,11 +125,21 @@ public class Main
         System.out.println("1. Usuario");
         System.out.println("2. Administrador");
         String rango = scanner.nextLine();
-        while (!rango.equals("1") && !rango.equals("2")) {
-            System.out.println("Rango incorrecto");
-            System.out.println("1. Usuario");
-            System.out.println("2. Administrador");
-            rango = scanner.nextLine();
+        if (MaxAdmin == false) {
+            while (!rango.equals("1") && !rango.equals("2")) {
+                System.out.println("Rango incorrecto");
+                System.out.println("1. Usuario");
+                System.out.println("2. Administrador");
+                rango = scanner.nextLine();
+            }
+            if (rango.equals("2")) {
+                MaxAdmin = true;
+            }
+        }
+        else{
+            System.out.println("El sistema llego al numero maximo de administradores");
+            System.out.println("Tu rango por defecto sera usuario");
+            rango = "1";
         }
         System.out.print("Ingrese su contraseña: ");
         String contrasena = scanner.nextLine();
@@ -134,7 +177,8 @@ public class Main
                     } else if (ListaUsuarios[i][2].equals("2")) {
                         EsAdmin = true;
                     }
-                    System.out.println("Bienvenido, " + ListaUsuarios[i][0] + " Admin: " + EsAdmin);
+                    Nombre = ListaUsuarios[i][0];
+                    System.out.println("Bienvenido, " + Nombre + " Admin: " + EsAdmin);
                     InicioSesion = true;
                 } else {
                     System.out.println("Contraseña incorrecta.");
@@ -145,6 +189,29 @@ public class Main
 
         if (!usuarioEncontrado) {
             System.out.println("El correo ingresado no existe en el sistema.");
+        }
+    }
+    public static void CierreSession( ){
+        String OpcionL = " ";
+        boolean Exito = false;
+        while(Exito == false){
+            System.out.println("Estas seguro que quieres cerrar sesion?");
+            System.out.println("1. Si");
+            System.out.println("2. No");
+            OpcionL = scanner.nextLine();
+            if (OpcionL.equals("1")) {
+                EsAdmin = false;
+                InicioSesion = false;
+                Nombre = " ";
+                System.out.println("Sesion cerrada");
+                Exito = true;
+            } else if (OpcionL.equals("2")) {
+                Exito = true;
+                break;
+            }
+            else{
+                System.out.println("Opcion incorrecta, intenta de nuevo");
+            }
         }
     }
 
@@ -253,6 +320,7 @@ public class Main
     public static void registrodiscos() {
         int opcion;
         int numero;
+        double numero2;
         boolean Condicion = false;
         if (EsAdmin) {
             if (contadorDiscos >= datosdisco.length) {
@@ -302,15 +370,15 @@ public class Main
                             !datosdisco[contadorDiscos][5].equalsIgnoreCase("VG+") &&
                             !datosdisco[contadorDiscos][5].equalsIgnoreCase("VG") &&
                             !datosdisco[contadorDiscos][5].equalsIgnoreCase("G")) {
-                        System.out.println("Error, ingrese una opción valida");
+                        System.out.println("Error, ingrese una opción valida. Ejemplo: Mint, Near Mint, VG+, VG, G" );
                         datosdisco[contadorDiscos][5] = scanner.nextLine();
                     }
                     System.out.println("7.-Precio ($):");
                     datosdisco[contadorDiscos][6] = scanner.nextLine();
                     while (!Condicion ) {
                         try {
-                            numero = Integer.parseInt(datosdisco[contadorDiscos][6]);
-                            if (numero > 0) {
+                            numero2 = Double.parseDouble(datosdisco[contadorDiscos][6]);
+                            if (numero2 > 0) {
                                 Condicion = true;
                             } else {
                                 System.out.println("Error, el precio debe ser mayor a 0. Intente de nuevo");
@@ -335,7 +403,7 @@ public class Main
                             } else {
                                 System.out.println("Error, la cantidad en stock debe ser mayor a 0. Intente de nuevo");
                                 Integer.parseInt(datosdisco[contadorDiscos][8]);
-
+                                datosdisco[contadorDiscos][8] = scanner.nextLine();
                             }
                         } catch (NumberFormatException e) {
                             System.out.println("Error, inserta un numero valido");
@@ -374,7 +442,6 @@ public class Main
         }
     }
 }
-
 
 // Tratar de hacer los siguientes modulos en este mismo archivo
 // para asi verificar la compatibilidad entre todos los modulos
