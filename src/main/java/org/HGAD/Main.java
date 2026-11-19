@@ -37,14 +37,16 @@ public class Main
             System.out.println("      DISCOS SALVAJES");
             System.out.println("===========================");
             System.out.println("0. Salir");
-            System.out.println("1. Registrarse");
-            System.out.println("2. Iniciar Sesión");
+            if (InicioSesion == false) {
+                System.out.println("1. Registrarse");
+                System.out.println("2. Iniciar Sesión");
+            }
             if(InicioSesion == true) {
-                System.out.println("3. Cerrar Session.");
-                System.out.println("4.-Consulta de discos ");
-                System.out.println("5.-Mi Whishlist");
+                System.out.println("1. Cerrar Session.");
+                System.out.println("2.-Consulta de discos ");
+                System.out.println("3.-Mi Whishlist");
                 if(EsAdmin == true) {
-                    System.out.println("6.- Registro de discos");
+                    System.out.println("4.- Registro de discos");
                 }
             }
             System.out.println("Seleccione una opción: ");
@@ -61,40 +63,37 @@ public class Main
                 continue;
             }
             switch (opcion) {
-                case 1:
-                    registrarUsuario();
-                    Operacion = true;
-                    break;
-                case 2:
-                    iniciarSesion();
-                    Operacion = true;
-                    break;
                 case 0:
                     System.out.println("Fin del programa");
                     Operacion = true;
                     break;
-                case -1:
+                case 1:
+                    if (InicioSesion == false) {
+                        registrarUsuario();
+                    } else {
+                        CierreSession();
+                    }
+                    Operacion = true;
+                    break;
+                case 2:
+                    if (InicioSesion == false) {
+                        iniciarSesion();
+                    } else {
+                        ordenamiento();
+                    }
+                    Operacion = true;
                     break;
             }
-            if(InicioSesion == true){
-                switch(opcion) {
+            if (InicioSesion == true) {
+                switch (opcion) {
                     case 3:
-                        CierreSession();
-                        Operacion = true;
-                        break;
-                    case 4:
-                        ordenamiento();
-                        Operacion = true;
-                        break;
-                    case 5:
                         menuWishlist();
-                        Operacion=true;
+                        Operacion = true;
                         break;
                 }
                 if(EsAdmin == true) {
                     switch (opcion) {
-                        case 6:
-                            registrodiscos();
+                        case 4:
                             Operacion = true;
                             break;
                     }
