@@ -133,12 +133,12 @@ public class Main
                 return;
             }
         }
-
+        String rango = " ";
+        if (MaxAdmin == false) {
         System.out.println("Ingrese su rango");
         System.out.println("1. Usuario");
         System.out.println("2. Administrador");
-        String rango = scanner.nextLine();
-        if (MaxAdmin == false) {
+        rango = scanner.nextLine();
             while (!rango.equals("1") && !rango.equals("2")) {
                 System.out.println("Rango incorrecto");
                 System.out.println("1. Usuario");
