@@ -19,8 +19,12 @@ public class Main
     static String[][] datosdisco = new String[1000][9];
     static int contadorDiscos = 0;
     static String Nombre = " ";
-
     static boolean InicioSesion = false;
+    static String[][] usuarios = new String[100][3];
+    static int totalUsuarios = 0;
+    static String[][] wishlist = new String[100][3];
+    static int totalDeseos = 0;
+    static int usuarioActual = -1;
 
     // INICIO DEL CODIGO DEL SISTEMA
     // MENU PRINCIPAL
@@ -38,8 +42,9 @@ public class Main
             if(InicioSesion == true) {
                 System.out.println("3. Cerrar Session.");
                 System.out.println("4.-Consulta de discos ");
+                System.out.println("5.-Mi Whishlist");
                 if(EsAdmin == true) {
-                    System.out.println("5. Registro de discos");
+                    System.out.println("6.- Registro de discos");
                 }
             }
             System.out.println("Seleccione una opción: ");
@@ -47,7 +52,7 @@ public class Main
                 opcion = scanner.nextInt();
                 scanner.nextLine();
             } else {
-                scanner.next();
+                scanner.nextLine();
                 System.out.println("Opcion no valida, ingrese un numero entero.");
                 opcion = -1;
                 System.out.println(" ");
@@ -81,10 +86,14 @@ public class Main
                         ordenamiento();
                         Operacion = true;
                         break;
+                    case 5:
+                        menuWishlist();
+                        Operacion=true;
+                        break;
                 }
                 if(EsAdmin == true) {
                     switch (opcion) {
-                        case 5:
+                        case 6:
                             registrodiscos();
                             Operacion = true;
                             break;
@@ -112,7 +121,12 @@ public class Main
 
         System.out.println("Ingrese su correo");
         String correo = scanner.nextLine();
-
+        while (!correo.matches("\\S+@\\S+\\.\\S+"))
+        {
+            System.out.println("Error: Formato inválido (ejemplo: usuario@gmail.com).");
+            System.out.println("Ingrese su correo nuevamente:");
+            correo= scanner.nextLine().trim();
+        }
         // Valida si el correo ya está registrado previamente
         for (int i = 0; i < contadorUsuarios; i++) {
             if (ListaUsuarios[i][1].equals(correo)) {
@@ -178,6 +192,7 @@ public class Main
                         EsAdmin = true;
                     }
                     Nombre = ListaUsuarios[i][0];
+                    usuarioActual=i;
                     System.out.println("Bienvenido, " + Nombre + " Admin: " + EsAdmin);
                     InicioSesion = true;
                 } else {
@@ -203,6 +218,7 @@ public class Main
                 EsAdmin = false;
                 InicioSesion = false;
                 Nombre = " ";
+                usuarioActual=-1;
                 System.out.println("Sesion cerrada");
                 Exito = true;
             } else if (OpcionL.equals("2")) {
@@ -347,19 +363,29 @@ public class Main
                     System.out.println("4.-Subgénero:");
                     datosdisco[contadorDiscos][3] = scanner.nextLine();
                     System.out.println("5.-Año de publicación:");
-                    datosdisco[contadorDiscos][4] = scanner.nextLine();
+                    datosdisco[contadorDiscos][4] = scanner.nextLine().trim();
+
                     while (!Condicion) {
-                        try {
-                            numero = Integer.parseInt(datosdisco[contadorDiscos][4]);
-                            if (numero > 0) {
-                                Condicion = true;
-                            } else {
-                                System.out.println("Error, el año debe ser mayor a 0. Intente de nuevo:");
-                                datosdisco[contadorDiscos][4] = scanner.nextLine().trim();
+                        String entrada=datosdisco[contadorDiscos][4];
+                        if(entrada.matches("\\d+"))
+                        {
+                            try {
+                                numero = Integer.parseInt(datosdisco[contadorDiscos][4]);
+                                if (numero > 0) {
+                                    Condicion = true;
+                                } else {
+                                    System.out.println("Error, el año debe ser mayor a 0. Intente de nuevo:");
+                                    datosdisco[contadorDiscos][4] = scanner.nextLine().trim();
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Error, inserta un numero valido");
+                                datosdisco[contadorDiscos][4] = scanner.nextLine();
                             }
-                        } catch (NumberFormatException e) {
-                            System.out.println("Error, inserta un numero valido");
-                            datosdisco[contadorDiscos][4] = scanner.nextLine();
+                        }
+                        else
+                        {
+                            System.out.println("Error, inserta un año válido (solo números enteros sin símbolos ni decimales):");
+                            datosdisco[contadorDiscos][4] = scanner.nextLine().trim();
                         }
                     }
                     Condicion = false;
@@ -393,6 +419,13 @@ public class Main
                     Condicion = false;
                     System.out.println("8.-Formato Físico");
                     datosdisco[contadorDiscos][7] = scanner.nextLine();
+                    while (!datosdisco[contadorDiscos][7].equalsIgnoreCase("Vinilo") &&
+                            !datosdisco[contadorDiscos][7].equalsIgnoreCase("CD") &&
+                            !datosdisco[contadorDiscos][7].equalsIgnoreCase("Casete") )
+                    {
+                        System.out.println("Error, ingrese una opción valida. Ejemplo: Vinilo, CD, Casete" );
+                        datosdisco[contadorDiscos][7] = scanner.nextLine();
+                    }
                     System.out.println("9.-Cantidad en Stock");
                     datosdisco[contadorDiscos][8] = scanner.nextLine();
                     while (!Condicion) {
@@ -441,7 +474,108 @@ public class Main
             }
         }
     }
+    public static void menuWishlist() {
+        int opcion = 0;
+        do {
+            System.out.println("\n--- MI WISHLIST DE VINILOS ---");
+            System.out.println("1. Ver mi wishlist");
+            System.out.println("2. Agregar disco");
+            System.out.println("0. Volver al menú principal");
+            System.out.print("Seleccione una opción: ");
+
+            if (scanner.hasNextInt()) {
+                opcion = scanner.nextInt();
+                scanner.nextLine();
+            } else {
+                scanner.nextLine();
+                System.out.println("Opción inválida.");
+                continue;
+            }
+
+            if (opcion == 1) {
+                mostrarWishlist();
+            } else if (opcion == 2) {
+                agregarDisco();
+            } else if (opcion == 0) {
+                System.out.println("Volviendo al menú principal...");
+            } else {
+                System.out.println("Opción no válida.");
+            }
+
+        } while (opcion != 0);
+    }
+    public static void mostrarWishlist() {
+        String correoActual = ListaUsuarios[usuarioActual][1];
+        System.out.println("\n--- WISHLIST DE " + ListaUsuarios[usuarioActual][0].toUpperCase() + " ---");
+
+        boolean hayDiscos = false;
+        double totalPrecio = 0;
+        int contador = 1;
+
+        for (int i = 0; i < totalDeseos; i++) {
+            if (wishlist[i][0].equals(correoActual)) {
+                double precio = Double.parseDouble(wishlist[i][2]);
+                System.out.println(contador + ". Álbum: " + wishlist[i][1] + " | Precio: $" + wishlist[i][2]);
+                totalPrecio += precio;
+                contador++;
+                hayDiscos = true;
+            }
+        }
+
+        if (!hayDiscos) {
+            System.out.println("Tu wishlist está vacía.");
+        } else {
+            System.out.println("Total estimado a gastar: $" + totalPrecio);
+        }
+    }
+    public static void agregarDisco() {
+        if (totalDeseos >= 100) {
+            System.out.println("La lista de deseos global está llena.");
+            return;
+        }
+
+        System.out.println("--- AGREGAR DISCO ---");
+
+        String album = "";
+        while (album.isEmpty()) {
+            System.out.print("Nombre del álbum: ");
+            album = scanner.nextLine().trim();
+            if (album.isEmpty()) {
+                System.out.println("El nombre del álbum no puede estar vacío.");
+            }
+        }
+
+        String precioStr = "";
+        boolean precioValido = false;
+        while (!precioValido) {
+            System.out.print("Precio del vinilo: ");
+            precioStr = scanner.nextLine().trim().replace(",", ".");
+            if (precioStr.matches("\\d+(\\.\\d+)?")) {
+                try {
+                    double precio = Double.parseDouble(precioStr);
+                    if (precio >= 0) {
+                        precioValido = true;
+                    } else {
+                        System.out.println("Error: El precio no puede ser negativo.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: El número ingresado es demasiado grande.");
+                }
+            } else {
+                System.out.println("Error: Ingresa un precio numérico válido (ej. 450.50).");
+            }
+        }
+
+        wishlist[totalDeseos][0] = ListaUsuarios[usuarioActual][1];
+        wishlist[totalDeseos][1] = album;
+        wishlist[totalDeseos][2] = precioStr;
+        totalDeseos++;
+
+        System.out.println("¡Disco agregado a tu wishlist con éxito!");
+    }
+
 }
+
 
 // Tratar de hacer los siguientes modulos en este mismo archivo
 // para asi verificar la compatibilidad entre todos los modulos
